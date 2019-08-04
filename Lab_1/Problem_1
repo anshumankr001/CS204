@@ -8,7 +8,7 @@ int main() {
     while(t--) {
     string a, b, s;
     cin>>a>>b;
-	int na = a.size(), nb = b.size();
+    int na = a.size(), nb = b.size();
     reverse(a.begin(), a.end()); reverse(b.begin(), b.end());
     int n = 0;
 
