@@ -4,35 +4,37 @@ using namespace std;
 struct node {
     int x;
     int y;
-    struct node* ptr;
+    node* ptr;
 };
 
-void AddFirst(int a, int b, struct node** head) {
-    struct node* temp;
+node* head = NULL;
+
+void AddFirst(int a, int b) {
+    node* temp;
     temp = new node();
     temp->ptr = NULL;
     temp->x = a;
     temp->y = b;
-    if(*head != NULL) {
-        temp->ptr = *head;
-        *head = temp;
+    if(head != NULL) {
+        temp->ptr = head;
+        head = temp;
     }
-    else *head = temp;
+    else head = temp;
 }
 
-void DelFirst(struct node** head) {
-    if(*head == NULL) cout<<"-1"<<endl;
+void DelFirst() {
+    if(head == NULL) cout<<"-1"<<endl;
     else {
-        struct node* temp;
-        temp = *head;
-        *head = temp->ptr;
+        node* temp;
+        temp = head;
+        head = temp->ptr;
         free(temp);
     }
 }
 
-void Del(int a, int b, struct node** head) {
-    struct node* temp = *head;
-    struct node* prev = NULL;
+void Del(int a, int b) {
+    node* temp = head;
+    node* prev = NULL;
     while(temp != NULL) {
         if(temp->x == a && temp->y == b && prev != NULL) {
             prev->ptr = temp->ptr;
@@ -40,7 +42,7 @@ void Del(int a, int b, struct node** head) {
             break;
         }
         else if(temp->x == a && temp->y == b && prev == NULL) {
-            DelFirst(head);
+            DelFirst();
             break;
         }
         else {
@@ -51,9 +53,9 @@ void Del(int a, int b, struct node** head) {
     if(temp == NULL) cout<<"-1"<<endl;
 }
 
-void Search(float d, struct node** head) {
-    struct node* temp;
-    temp = *head;
+void Search(float d) {
+    node* temp;
+    temp = head;
     while(temp != NULL) {
         float a, b;
         a = temp->x;
@@ -65,9 +67,9 @@ void Search(float d, struct node** head) {
     } cout<<endl;
 }
 
-void Search(int a, int b, struct node** head) {
-    struct node* temp;
-    temp = *head;
+void Search(int a, int b) {
+    node* temp;
+    temp = head;
     int n=0;
     while(temp != NULL) {
         if(temp->x == a && temp->y == b) n++;
@@ -77,9 +79,9 @@ void Search(int a, int b, struct node** head) {
     else cout<<"False"<<endl;
 }
 
-void Length(struct node** head) {
-    struct node* temp;
-    temp = *head;
+void Length() {
+    node* temp;
+    temp = head;
     int n=0;
     while(temp != NULL) {
         n++;
@@ -90,33 +92,31 @@ void Length(struct node** head) {
 
 int main() {
     int t, n, a, b;
-    struct node* head;
-    head = NULL;
     cin>>t;
     while(t--) {
         cin>>n;
         if(n == 1) {
             cin>>a>>b;
-            AddFirst(a, b, &head);
+            AddFirst(a, b);
         }
         if(n == 2) {
-            DelFirst(&head);
+            DelFirst();
         }
         if(n == 3) {
             cin>>a>>b;
-            Del(a, b, &head);
+            Del(a, b);
         }
         if(n == 4) {
             float d;
             cin>>d;
-            Search(d, &head);
+            Search(d);
         }
         if(n == 5) {
             cin>>a>>b;
-            Search(a, b, &head);
+            Search(a, b);
         }
         if(n == 6) {
-            Length(&head);
+            Length();
         }
     }    
     return 0;
