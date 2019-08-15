@@ -56,15 +56,16 @@ void Del(int a, int b) {
 void Search(float d) {
     node* temp;
     temp = head;
+    int i = 0;
     while(temp != NULL) {
         float a, b;
         a = temp->x;
         b = temp->y;
-        if(a*a + b*b <= d*d) {
-            cout<<"("<<a<<","<<b<<")"<<" ";
-        }
+        if(a*a + b*b <= d*d) i++;
         temp = temp->ptr;
-    } cout<<endl;
+    }
+    if(i) cout<<i<<endl;
+    else cout<<"-1"<<endl;
 }
 
 void Search(int a, int b) {
