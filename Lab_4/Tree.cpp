@@ -100,22 +100,22 @@ vector<string> inToPost(string str)
     return ans;
 }
 
-tree* constructTree(string s)
+tree* makeTree(string s)
 {
-    vector<string> postfix = inToPost(s);
+    vector<string> vs = inToPost(s);
     stack<tree *> st;
     tree *t, *t1, *t2;
-    int n = postfix.size();
+    int n = vs.size();
     for (int i=0; i<n; i++)
     {
-        if (!isOperator(postfix[i]))
+        if (isInt(vs[i]))
         {
-            t = newNode(postfix[i]);
+            t = newNode(vs[i]);
             st.push(t);
         }
         else
         {
-            t = newNode(postfix[i]);
+            t = newNode(vs[i]);
             t1 = st.top();
             st.pop();
             t2 = st.top();
@@ -130,8 +130,9 @@ tree* constructTree(string s)
     return t;
 }
 
-int eval(tree* a){
-	if(a->left==NULL&&a->right==NULL) return stoi(a->str);
+int eval(tree* a)
+{
+	if(a->left==NULL && a->right==NULL) return stoi(a->str);
 	int A = eval(a->left);
 	int B = eval(a->right);
 	if(a->str == "+") return A+B;
@@ -155,7 +156,7 @@ int main()
             vector<string> vs;
             string s;
             cin>>s;
-            tree* t = constructTree(s);
+            tree* t = makeTree(s);
             cout<<eval(t);
         }
     }
