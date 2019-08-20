@@ -1,195 +1,163 @@
 #include <bits/stdc++.h>
 using namespace std;
-struct node
+#define f(i,a,b) for(int i=a; i<b; i++)
+#define pb push_back
+
+bool isOperator(string c)
+{ 
+    if (c == "+" || c == "-" || c == "*" || c == "/" || c == "^") return true;
+    return false;
+}
+
+struct tree
 {
-	struct node *left, *right;
-	int value, val;
+    string str;
+    tree* left;
+    tree* right;
 };
 
-node *cn(int v)
+tree* newNode(string s)
 {
-	node *temp = new node;
-	temp->left = NULL;
-	temp->right = NULL;
-	temp->value = v;
-	temp->val = 0;
-	return temp;
-}
-node *cno(int v)
-{
-	node *temp = new node;
-	temp->left = NULL;
-	temp->right = NULL;
-	temp->val = v;
-	return temp;
-}
-node *build(vector<string> op)
-{
-	stack<node *> st;
-	for (auto s : op)
-	{
-		if (s[0] == '+' || s[0] == '/' || s[0] == '*' || s[0] == '-' || s[0] == '^')
-		{
-			node *l, *r;
-			r = st.top();
-			st.pop();
-			l = st.top();
-			st.pop();
-			node *p = cno(s[0]);
-			p->left = l;
-			p->right = r;
-			st.push(p);
-		}
-		else if (s[0] == '|' || s[0] == '}')
-		{
-			int value=st.top()->value;
-			st.pop();
-			if (s[0] == '|')
-				st.push(cn(-value));
-			else
-				st.push(cn(value));
-		}
-		else
-		{
-			st.push(cn(strtod(&s[0], NULL)));
-		}
-	}
-	return st.top();
+    tree* temp = new tree;
+    temp->left = NULL;
+    temp->right = NULL;
+    temp->str = s;
+    return temp;
 }
 
-long long int eval(node *ptr)
+bool isInt(string s)
 {
-	switch (ptr->val)
-	{
-	case '+':
-		return eval(ptr->left) + eval(ptr->right);
-	case '*':
-		return eval(ptr->left) * eval(ptr->right);
-	case '-':
-		return eval(ptr->left) - eval(ptr->right);
-	case '/':
-		return eval(ptr->left) / eval(ptr->right);
-	case '^':
-		return (long long int)pow(eval(ptr->left), eval(ptr->right));
-	default:
-		return ptr->value;
-	}
+    int n = s.length();
+    for (int i = 0; i < n; i++)
+    {
+        if (isdigit(s[i]) == false) return false;
+    }
+    return true;
 }
 
-int pro(string c)
+int prec(string c)
 {
-	if (c.compare("(") == 0 || c.compare(")") == 0)
-		return 1;
-	if (c.compare("*") == 0 || c.compare("/") == 0)
-		return 4;
-	if (c.compare("+") == 0 || c.compare("-") == 0)
-		return 3;
-	if (c.compare("^") == 0)
-		return 5;
-	if (c.compare("|") == 0 || c.compare("}") == 0)
-		return 6;
-	return 0;
+    if(c == "^") return 5;
+    else if(c == "/") return 4;
+    else if(c == "*") return 3;
+    else if(c == "+") return 2;
+    else if(c == "-") return 1;
+    else return -1;
 }
-vector<string> cpostfix(vector<string> v)
+
+vector<string> inToPost(string str)
 {
-	vector<string> ans;
-	stack<string> st;
-	for (auto c : v)
-	{
-		if (!c.compare("+") || !c.compare("-") || !c.compare("*") || !c.compare("/") || !c.compare("^") || !c.compare("(") || !c.compare(")") || c.compare("|") == 0 || c.compare("}") == 0)
-		{
-			if (st.empty())
-				st.push(c);
-			else
-			{
-				if (!c.compare("(") || !c.compare("|") || !c.compare("}"))
-					st.push(c);
-				else if (!c.compare(")"))
-				{
-					while ((st.top()).compare("(") != 0)
-					{
-						ans.push_back(st.top());
-						st.pop();
-					}
-					st.pop();
-				}
-				else if (!c.compare("+") || !c.compare("-") || !c.compare("*") || !c.compare("/"))
-				{
-					while (!st.empty() && pro(c) <= pro(st.top()))
-					{
-						ans.push_back(st.top());
-						st.pop();
-					}
-					st.push(c);
-				}
-				else if (!c.compare("^"))
-				{
-					while (!st.empty() && pro(c) < pro(st.top()))
-					{
-						ans.push_back(st.top());
-						st.pop();
-					}
-					st.push(c);
-				}
-			}
-		}
-		else
-		{
-			ans.push_back(c);
-		}
-	}
-	while (!st.empty())
-	{
-		ans.push_back(st.top());
-		st.pop();
-	}
-	return ans;
+    stack<string> st;
+    st.push("N");
+    vector<string> ans, s;
+    string t;
+    int x = str.size();
+    f(i, 0, x)
+    {
+        if(str[i] >= '0' && str[i] <= '9') t += str[i];
+        else
+        {
+            if(!t.empty()) s.pb(t);
+            t.clear();
+            t += str[i];
+            s.pb(t);
+            t.clear();
+        }
+        if(i == x-1) s.pb(t);
+    }
+    int l = s.size();
+    for(int i=0; i<l; i++)
+    {
+        if(isInt(s[i])) ans.pb(s[i]);
+        else if(s[i] == "(") st.push("(");
+        else if(s[i] == ")")
+        {
+            while(st.top() != "N" && st.top() != "(")
+            {
+                string c = st.top();
+                st.pop();
+                ans.pb(c);
+            }
+            if(st.top() == "(") st.pop();
+        }
+        else
+        {
+            while(st.top() != "N" && prec(s[i]) <= prec(st.top()))
+            {
+                string c = st.top();
+                st.pop();
+                ans.pb(c);
+            }
+            st.push(s[i]);
+        }
+    }
+    while(st.top() != "N")
+    {
+        string c = st.top();
+        st.pop();
+        ans.pb(c);
+    }
+    return ans;
 }
+
+tree* constructTree(string s)
+{
+    vector<string> postfix = inToPost(s);
+    stack<tree *> st;
+    tree *t, *t1, *t2;
+    int n = postfix.size();
+    for (int i=0; i<n; i++)
+    {
+        if (!isOperator(postfix[i]))
+        {
+            t = newNode(postfix[i]);
+            st.push(t);
+        }
+        else
+        {
+            t = newNode(postfix[i]);
+            t1 = st.top();
+            st.pop();
+            t2 = st.top();
+            st.pop();
+            t->right = t1;
+            t->left = t2;
+            st.push(t);
+        }
+    }
+    t = st.top();
+    st.pop();
+    return t;
+}
+
+int eval(tree* a){
+	if(a->left==NULL&&a->right==NULL) return stoi(a->str);
+	int A = eval(a->left);
+	int B = eval(a->right);
+	if(a->str == "+") return A+B;
+	else if(a->str == "-") return A-B;
+	else if(a->str == "*") return A*B;
+	else if(a->str == "%") return A%B;
+	else if(a->str == "/") return A/B;
+	else if(a->str == "^") return pow(A,B);
+}
+
 int main()
 {
-	int t;
-	cin >> t;
-	while (t--)
-	{
-		int n;
-		cin >> n;
-		for (int i = 0; i < n; i++)
-		{
-			string s, cur;
-			cin >> s;
-			vector<string> ip, op;
-			for (auto c : s)
-			{
-				if (c == '+' || c == '-' || c == '*' || c == '(' || c == ')' || c == '/' || c == '^')
-				{
-					if (cur.compare("") != 0)
-						ip.push_back(cur);
-					cur = "";
-					cur.push_back(c);
-					ip.push_back(cur);
-					cur = "";
-				}
-				else
-					cur.push_back(c);
-			}
-			if (cur.compare("") != 0)
-				ip.push_back(cur);
-			for (int i = 0; i < ip.size(); i++)
-			{
-				if (ip[i][0] == '-')
-				{
-					if (i == 0 || ip[i - 1][0] == '(')
-						ip[i]="|";
-				}
-				if (ip[i][0] == '+')
-				{
-					if (i == 0 || ip[i - 1][0] == '(')
-						ip[i] = "}";
-				}
-			}
-			op = cpostfix(ip);
-			node *tree = build(op);
-			cout << eval(tree)<<endl;
-		}
-	}
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        int n;
+        cin>>n;
+        while(n--)
+        {
+            vector<string> vs;
+            string s;
+            cin>>s;
+            tree* t = constructTree(s);
+            cout<<eval(t);
+        }
+    }
+    return 0;
 }
