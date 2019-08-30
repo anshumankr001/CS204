@@ -1,214 +1,319 @@
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
 using namespace std;
-#define f(i,a,b) for(int i=a; i<b; i++)
-#define pb push_back
 
-bool isOperator(string c)
-{ 
-    if (c == "+" || c == "-" || c == "*" || c == "/" || c == "^") return true;
-    return false;
-}
-
-bool isOperator(char c)
-{ 
-    if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^') return true;
-    return false;
-}
-
-int isfchar(string s)
+struct node
 {
-    if((s[0] >= '0' && s[0] <= '9') || s[0] == '-' || s[0] == '+') return 0;
-    return 1;
-}
-
-struct tree
-{
-    string str;
-    tree* left;
-    tree* right;
+	string data;
+	string key;
+	node* next;
 };
 
-tree* newNode(string s)
-{
-    tree* temp = new tree;
-    temp->left = NULL;
-    temp->right = NULL;
-    temp->str = s;
-    return temp;
+vector <struct node*> table;
+
+int calKey(string variable){
+	int val=0;
+	for(int i=0;i<variable.length();i++){
+		val+=variable[i]; 
+	}
+	return val%37;
 }
 
-bool isInt(string s)
-{
-    int n = s.length();
-    for (int i = 0; i < n; i++)
-    {
-        if(i == 0 && s[i] == '-') i++;
-        if (isdigit(s[i]) == false) return false;
-    }
-    return true;
+void insert(string var,int val){
+	int ikey = calKey(var);
+	node* temp = new node();
+	temp->key = var;
+	temp->data = to_string(val);
+	temp->next = NULL;
+	if(table[ikey] == NULL){
+		table[ikey] = temp;
+	}
+	else{
+		node* temp2 = table[ikey];
+		temp->next = temp2;
+		table[ikey] = temp;
+	}
+
 }
 
-int prec(string c)
-{
-    if(c == "^") return 5;
-    else if(c == "/") return 4;
-    else if(c == "*") return 3;
-    else if(c == "+") return 2;
-    else if(c == "-") return 1;
-    else return -1;
+node* search(string p){
+	int ikey = calKey(p);
+	node* temp = table[ikey];
+	while(temp!=NULL){
+		if(!p.compare(temp->key))
+			break;
+	}
+	return temp;	
 }
 
-vector<string> inToPost(string str)
-{
-    stack<string> st;
-    st.push("N");
-    vector<string> ans, s;
-    string t;
-    int x = str.size();
-    f(i, 0, x)
-    {
-        if(str[i] == '+' && i == 0) continue;
-        if( (str[i] >= '0' && str[i] <= '9') || ((isOperator(str[i-1]) || str[i-1] == '(') && str[i] == '-') || (i == 0 && str[i] == '-') ) t += str[i];
-        else
-        {
-            if(!t.empty()) s.pb(t);
-            t.clear();
-            t += str[i];
-            if(!t.empty()) s.pb(t);
-            t.clear();
-        }
-        if(i == x-1) if(!t.empty()) s.pb(t);
-    }
-    int l = s.size();
-    for(int i=0; i<l; i++)
-    {
-        if(isInt(s[i])) ans.pb(s[i]);
-        else if(s[i] == "(") st.push("(");
-        else if(s[i] == ")")
-        {
-            while(st.top() != "N" && st.top() != "(")
-            {
-                string c = st.top();
+string integer(string p){
+	node* ptr = search(p);
+	return ptr->data;
+}
+
+struct et 
+{ 
+    string value; 
+    et* left, *right; 
+}; 
+
+int prec(string c) 
+{ 
+	if(c=="@")
+	return 4;
+    if(c == "^") 
+    return 3; 
+    else if(c == "*" || c == "/") 
+    return 2; 
+    else if(c == "+" || c == "-") 
+    return 1; 
+    else
+    return -1; 
+}  
+vector<string> infixToPostfix(vector<string> s) 
+{ 
+    std::stack<string> st; 
+    st.push("N"); 
+    int l = s.size(); 
+    vector<string> ns; 
+    for(int i = 0; i < l; i++) 
+    { 
+        // If the scanned character is an operand, add it to output string. 
+        if(s[i]!="(" && s[i]!=")" && s[i]!="+" && s[i]!="*" && s[i]!="-" && s[i]!="/" && s[i]!= "@") {
+        	if(s[i]!="")
+        	ns.push_back(s[i]); 
+    	}
+  
+        // If the scanned character is an ‘(‘, push it to the stack. 
+        else if(s[i] == "(") 
+          
+        st.push("("); 
+          
+        // If the scanned character is an ‘)’, pop and to output string from the stack 
+        // until an ‘(‘ is encountered. 
+        else if(s[i] == ")") 
+        { 
+            while(st.top() != "N" && st.top() != "(") 
+            { 
+                string c = st.top(); 
                 st.pop();
-                ans.pb(c);
-            }
-            if(st.top() == "(") st.pop();
-        }
-        else
-        {
-            while(st.top() != "N" && prec(s[i]) <= prec(st.top()))
-            {
-                string c = st.top();
+                ns.push_back(c); 
+            } 
+            if(st.top() == "(") 
+            { 
+                st.pop();  
+            } 
+        } 
+          
+        //If an operator is scanned 
+        else{ 
+            while(st.top() != "N" && prec(s[i]) <= prec(st.top())) 
+            { 
+                string c = st.top(); 
+                st.pop(); 
+                ns.push_back(c); 
+            } 
+            st.push(s[i]); 
+        } 
+  
+    } 
+    //Pop all the remaining elements from the stack 
+    while(st.top() != "N") 
+    { 
+                string c = st.top(); 
                 st.pop();
-                ans.pb(c);
-            }
-            st.push(s[i]);
-        }
-    }
-    while(st.top() != "N")
-    {
-        string c = st.top();
-        st.pop();
-        ans.pb(c);
-    }
-    return ans;
+                ns.push_back(c); 
+    } 
+      
+    return ns;
+  
+}  
+
+bool isOperator(string c) 
+{ 
+    if (c.size()==1&&(c == "+" || c == "-" || 
+            c == "*" || c == "/" || 
+            c == "^"|| c=="@")) 
+        return true; 
+    return false; 
+} 
+
+bool isOperator(char c) 
+{ 
+    if ((c == '+' || c == '-' || 
+            c == '*' || c == '/' || 
+            c == '^')) 
+        return true; 
+    return false; 
+} 
+
+bool isunary(string p,int i){
+	if(i==0||p[i+1]==28||isOperator(p[i-1]))
+		return true;	
+	return false;
 }
 
-tree* makeTree(string s)
-{
-    vector<string> vs = inToPost(s);
-    stack<tree *> st;
-    tree *t, *t1, *t2;
-    int n = vs.size();
-    for (int i=0; i<n; i++)
-    {
-        if (isInt(vs[i]))
-        {
-            t = newNode(vs[i]);
-            st.push(t);
+et* newNode(string v) 
+{ 
+    et *temp = new et; 
+    temp->left = temp->right = NULL; 
+    temp->value = v; 
+    return temp; 
+}; 
+  
+// Returns root of constructed tree for given 
+// postfix expression 
+et* constructTree(vector<string> postfix) 
+{ 
+    stack<et *> st; 
+    et *t, *t1, *t2; 
+  
+    // Traverse through every character of 
+    // input expression 
+    for (int i=0; i<postfix.size(); i++) 
+    { 
+        // If operand, simply push into stack 
+        if (!isOperator(postfix[i])) 
+        { 
+            t = newNode(postfix[i]); 
+            st.push(t); 
+        } 
+        else if(postfix[i] == "@"){
+        	string a = "0";
+        	t = newNode(postfix[i]);
+        	t1 = st.top();
+        	st.pop();
+        	t->right = t1;
+        	t2  = newNode(a);
+        	t->left = t2;
+        	st.push(t);
         }
-        else
-        {
-            t = newNode(vs[i]);
-            t1 = st.top();
-            st.pop();
-            t2 = st.top();
-            st.pop();
-            t->right = t1;
-            t->left = t2;
-            st.push(t);
-        }
+        else // operator 
+        { 
+            t = newNode(postfix[i]); 
+            // Pop two top nodes 
+            t1 = st.top(); // Store top 
+            st.pop();      // Remove top 
+            t2 = st.top(); 
+            st.pop(); 
+            //  make them children 
+            t->right = t1; 
+            t->left = t2; 
+            // Add this subexpression to stack 
+            st.push(t); 
+        } 
+    } 
+    //  only element will be root of expression 
+    // tree 
+    t = st.top(); 
+    st.pop(); 
+    return t; 
+} 
+
+int eval(et* a){
+    if(a->left==NULL&&a->right==NULL){
+    	try{
+    		return stoi(a->value);
+    	}
+    	catch(...){
+    		return stoi(integer(a->value));
+    	}
     }
-    t = st.top();
-    st.pop();
-    return t;
+    int A = eval(a->left);
+    int B = eval(a->right);
+    if(a->value == "+")
+        return A+B;
+    else if(a->value == "-")
+        return A-B;
+    else if(a->value == "*")
+        return A*B;
+    else if(a->value == "%")
+        return A%B;
+    else if(a->value == "/")
+        return A/B;
+    else if(a->value == "^")
+        return pow(A,B);
+    else if(a->value == "@")
+    	return -1*B;
 }
 
-int eval(tree* a)
-{
-	if(a->left == NULL && a->right == NULL) return stoi(a->str);
-	int A = eval(a->left);
-	int B = eval(a->right);
-	if(a->str == "+") return A+B;
-	else if(a->str == "-") return A-B;
-	else if(a->str == "*") return A*B;
-	else if(a->str == "%") return A%B;
-	else if(a->str == "/") return A/B;
-	else if(a->str == "^") return pow(A,B);
-    else return 0;
+vector <string> Thevals(string p){
+    vector<string> P;
+    string temp="";
+	for(int i=0; i<p.length();i++)
+	{
+		if((p[i]>=48 && p[i]<=57))
+		{
+          temp+=p[i];
+		}
+		else
+		{
+            P.push_back(temp);
+            temp="";
+            if(p[i] == 45 && isunary(p,i))
+            	p[i] = '@';
+
+            temp+=p[i];  
+            P.push_back(temp);
+            temp="";
+		}   
+	}
+    P.push_back(temp);
+    return P;
 }
 
-string unary(string s)
-{
-    string t, u;
-    int x = s.size(), j=0;
-    int p[x] = {};
-    for(int i=0; i<x; i++)
-    {
-        if(s[i] == '-' && s[i+1] == '-') p[j]++;
-        else if(p[j] != 0 && p[j]%2 == 0)
-        {
-            t += '-';
-            j++;
-        }
-        else if(p[j] != 0 && p[j]%2 == 1)
-        {
-            t += '+';
-            j++;
-        }
-           else t += s[i];
-    }
-       int y = t.size();
-    for(int i=0; i<y; i++)
-    {
-        if(t[i] == '+' && t[i+1] == '+') continue;
-        if(t[i] == '-' && t[i+1] == '(') u += "-1*";
-        else u += t[i];
-    }
-    return u;
+int numerical_exp(string p){
+	vector<string> P;
+	P = Thevals(p);
+	vector<string> postexp=infixToPostfix(P);
+    //for(int i=0; i<postexp.size();i++)
+    //cout<<postexp[i]<<" ";
+    et* a = constructTree(postexp);
+    int value = eval(a);
+    return value;
 }
 
-int main()
-{
-    int t;
-    cin>>t;
-    while(t--)
-    {
-        int n;
-        cin>>n;
-        while(n--)
-        {
-            string s, t, u;
-            cin>>s;
-            s = unary(s);
-            vector <string> vs;
-            vs = inToPost(s);
-            if(!isfchar(t))
-            {
-                tree* f = makeTree(u);
-                cout<<endl<<eval(f);
-            }
-        }
+void variable_exp(string p){
+	string var = "";
+	int i;
+	for(i=0;i<p.length();i++){
+		if(p[i] == 61)
+			break;
+		else
+			var+=p[i];
+	}
+	int num = numerical_exp(p.substr(i,p.length()));
+	insert(var,num);
+}
+void exptype(string p){
+	int flag = 0;
+	for(int i=0;i<p.length();i++){
+		if(p[i] == '='){
+			flag = 1;
+			break;
+		}
+	}
+	if(flag){
+        variable_exp(p);
     }
-    return 0;
+    else{
+    	int number = numerical_exp(p);
+    	cout<<number<<"\n";
+    }
+}
+
+
+int main(){
+	int t;cin>>t;
+	while(t--)
+	{	
+	int q;cin>>q;
+	for(int i=0;i<37;i++){
+			table.push_back(NULL);
+		}
+	while(q--){
+		string p;
+		cin>>p;
+		exptype(p);
+	}
+	}	
 }
