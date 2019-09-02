@@ -5,8 +5,8 @@ int main()
 {
     int n, q, max = 0, a, b, c, user;
     cin >> n >> q;
-    int x[1000] = {0};
-    for(int i=0; i<q; i++)
+    int x[n] = {0};
+    while(q--)
     {
         cin >> a;
         if(a == 1)
