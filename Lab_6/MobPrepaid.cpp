@@ -3,9 +3,10 @@ using namespace std;
 
 int main()
 {
-    int n, x[1000] = {0}, max = 0, a, b, c, user;
-    cin >> n;
-    for(int i=0; i<n; i++)
+    int n, q, max = 0, a, b, c, user;
+    cin >> n >> q;
+    int x[1000] = {0};
+    for(int i=0; i<q; i++)
     {
         cin >> a;
         if(a == 1)
