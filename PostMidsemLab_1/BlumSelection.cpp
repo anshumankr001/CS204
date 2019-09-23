@@ -2,33 +2,33 @@
 #define ll long long int
 using namespace std;
 
-void swap(int *a, int *b)
+void swapll(ll *a, ll *b)
 {
-    int temp = *a;
+    ll temp = *a;
     *a = *b;
     *b = temp;
 }
 
-int partition(int arr[], int l, int r)
+ll partition(ll arr[], ll l, ll r)
 {
-    int x = arr[r], i = l;
-    for (int j=l; j <= r-1; j++)
+    ll x = arr[r], i = l;
+    for (ll j=l; j <= r-1; j++)
     {
         if (arr[j] <= x)
         {
-            swap(&arr[i], &arr[j]);
+            swapll(&arr[i], &arr[j]);
             i++;
         }
     }
-    swap(&arr[i], &arr[r]);
+    swapll(&arr[i], &arr[r]);
     return i;
 }
 
-int kthSmallest(int arr[], int l, int r, int k)
+ll kthSmallest(ll arr[], ll l, ll r, ll k)
 {
     if (k > 0 && k <= r-l+1)
     {
-        int pos = partition(arr, l, r);
+        ll pos = partition(arr, l, r);
         if (pos-l == k-1) return arr[pos]; 
         if (pos-l > k-1) return kthSmallest(arr, l, pos-1, k);
         return kthSmallest(arr, pos+1, r, k-pos+l-1);
@@ -38,14 +38,14 @@ int kthSmallest(int arr[], int l, int r, int k)
 
 int main()
 {
-    int t;
+    ll t;
     cin>>t;
     while(t--)
     {
-        int n, a, b, k;
+        ll n, a, b, k;
         cin>>n;
-        int dis[n];
-        for(int i=0; i<n; i++)
+        ll dis[n];
+        for(ll i=0; i<n; i++)
         {
             cin>>a>>b;
             dis[i] = a*a + b*b;
