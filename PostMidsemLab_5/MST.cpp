@@ -83,8 +83,8 @@ ll MaxWeight(Graph* graph)
             Union(subsets, x, y);
         }
     }
-    for (i = 0; i < e; ++i) ans *= result[i].weight;
-    return ans;
+    for (i = 0; i < e; ++i) ans *= (result[i].weight%M);
+    return ans%M;
 }
 
 int main()
